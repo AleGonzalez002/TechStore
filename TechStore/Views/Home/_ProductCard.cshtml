@@ -1,0 +1,21 @@
+@model Producto
+
+<article class="product-card h-100">
+    <div class="product-image">
+        <img src="@Model.Imagen" alt="@Model.Nombre" />
+    </div>
+
+    <div class="p-4">
+        <span class="category-tag">@Model.Categoria</span>
+
+        <h3>@Model.Nombre</h3>
+        <p>@Model.Descripcion</p>
+
+        <div class="product-footer">
+            <strong class="price">$@Model.Precio.ToString("N2")</strong>
+            <small class="@(Model.Estado ? "in-stock" : "out-stock")">
+                @(Model.Estado ? $"{Model.Stock} disponibles" : "Agotado")
+            </small>
+        </div>
+    </div>
+</article>

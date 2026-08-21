@@ -1,8 +1,35 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model IEnumerable<Producto>
+
+@{
+    ViewData["Title"] = "Inicio";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Tecnología para tu día a día.</h1>
+            <p class="hero-text">Encuentra productos para estudiar, trabajar y disfrutar.</p>
+
+            <div class="d-flex flex-wrap gap-3">
+                <a class="btn btn-light btn-lg" asp-action="Productos">Ver productos</a>
+                <a class="btn btn-outline-light btn-lg" asp-action="Categorias">Ver categorías</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container section-space">
+    <div class="section-heading">
+        <h2>Productos destacados</h2>
+        <a asp-action="Productos" class="link-primary">Ver todos</a>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var producto in Model)
+        {
+            <div class="col-md-6 col-lg-4">
+                <partial name="_ProductCard" model="producto" />
+            </div>
+        }
+    </div>
+</section>

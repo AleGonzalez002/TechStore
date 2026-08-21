@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -11,35 +11,40 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">TechStore</a>
+        <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container">
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
+                    TechStore
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                <div class="navbar-collapse collapse justify-content-end" id="navbarSupportedContent">
+                    <ul class="navbar-nav align-items-lg-center gap-lg-2">
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Productos">Productos</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Categorias">Categorías</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="AcercaDe">Nosotros</a></li>
+                        <li class="nav-item"><a class="btn btn-light btn-sm px-3 ms-lg-2" asp-controller="Home" asp-action="Contactenos">Contáctenos</a></li>
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    <main role="main">
+        @RenderBody()
+    </main>
 
-    <footer class="border-top footer text-muted">
+    <footer class="footer-tech text-white">
         <div class="container">
-            &copy; 2026 - TechStore - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="row align-items-center g-3">
+                <div class="col-md">
+                    <strong>TechStore</strong>
+                    <span class="ms-md-3 text-white-50">Tecnología para todos.</span>
+                </div>
+                <div class="col-md-auto text-md-end text-white-50">&copy; 2026 TechStore</div>
+            </div>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

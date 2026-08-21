@@ -1,0 +1,25 @@
+@model IEnumerable<Producto>
+
+@{
+    ViewData["Title"] = "Productos";
+}
+
+<section class="page-banner">
+    <div class="container">
+        <h1>@(ViewData["CategoriaActual"] ?? "Productos")</h1>
+        <p>Una selección de dispositivos para tu día a día.</p>
+    </div>
+</section>
+
+<section class="container section-space">
+    <a class="back-link" asp-action="Productos">Ver todos los productos</a>
+
+    <div class="row g-4 mt-1">
+        @foreach (var producto in Model)
+        {
+            <div class="col-sm-6 col-lg-4">
+                <partial name="_ProductCard" model="producto" />
+            </div>
+        }
+    </div>
+</section>
