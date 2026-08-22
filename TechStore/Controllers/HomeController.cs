@@ -9,10 +9,10 @@ namespace TechStore.Controllers
         // Datos en la memoria.
         private static readonly List<Categoria> CategoriasData =
         [
-            new() { Id = 1, Nombre = "Computadoras", Descripcion = "Equipos para estudiar, crear y trabajar." },
-            new() { Id = 2, Nombre = "Celulares", Descripcion = "Tecnología que te acompaña todos los días." },
-            new() { Id = 3, Nombre = "Accesorios", Descripcion = "Complementos para tu espacio digital." },
-            new() { Id = 4, Nombre = "Gaming", Descripcion = "Potencia y precisión para jugar mejor." }
+            new() { Id = 1, Nombre = "Computadoras", Descripcion = "Laptops y PCs para el día a día." },
+            new() { Id = 2, Nombre = "Celulares", Descripcion = "Smartphones de las mejores marcas." },
+            new() { Id = 3, Nombre = "Accesorios", Descripcion = "Mouse, teclados, audífonos y más." },
+            new() { Id = 4, Nombre = "Gaming", Descripcion = "Todo lo que necesitás para jugar." },
         ];
 
         private static readonly List<Producto> ProductosData =
