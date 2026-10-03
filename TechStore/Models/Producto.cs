@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+ï»¿using System.ComponentModel.DataAnnotations;
 
 namespace TechStore.Models;
 
@@ -10,7 +10,7 @@ public class Producto
     [StringLength(150)]
     public string Nombre { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "La descripción es obligatoria.")]
+    [Required(ErrorMessage = "La descripciÃ³n es obligatoria.")]
     [StringLength(500)]
     public string Descripcion { get; set; } = string.Empty;
 
@@ -26,7 +26,7 @@ public class Producto
 
     public bool Estado { get; set; }
 
-    [Required(ErrorMessage = "Debe seleccionar una categoría.")]
+    [Required(ErrorMessage = "Debe seleccionar una categorÃ­a.")]
     public int CategoriaId { get; set; }
 
     public Categoria? Categoria { get; set; }
