@@ -52,6 +52,9 @@ static async Task SeedRolesAndAdministratorAsync(WebApplication app)
     var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("Bootstrap");
     try
     {
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        if (db.Database.IsRelational()) await db.Database.MigrateAsync();
+
         var roles = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         foreach (var name in new[] { "Administrador", "Vendedor", "Cliente" })
             if (!await roles.RoleExistsAsync(name)) await roles.CreateAsync(new IdentityRole(name));

@@ -32,7 +32,10 @@
                     <td>@(producto.Estado ? "Activo" : "Inactivo")</td>
                     <td class="text-end">
                         <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@producto.Id">Editar</a>
-                        <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@producto.Id">Eliminar</a>
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@producto.Id">Eliminar</a>
+                        }
                     </td>
                 </tr>
             }

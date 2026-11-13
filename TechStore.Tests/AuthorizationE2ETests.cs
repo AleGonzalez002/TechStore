@@ -132,10 +132,115 @@ public class AuthorizationE2ETests
         Assert.Equal(HttpStatusCode.Redirect, loginResponse.StatusCode);
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/Productos")).StatusCode);
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/Reports")).StatusCode);
+        Assert.DoesNotContain("/Productos/Delete", await client.GetStringAsync("/Productos"));
         using var delete = await client.GetAsync("/Productos/Delete/1");
         Assert.Equal(HttpStatusCode.Redirect, delete.StatusCode);
         Assert.Contains("/Home/AccessDenied", delete.Headers.Location!.ToString());
     }
+    private static async Task EnsureCategoriaAsync(IServiceProvider services)
+    {
+        var db = services.GetRequiredService<ApplicationDbContext>();
+        if (!await db.Categorias.AnyAsync(c => c.Id == 1))
+        {
+            db.Categorias.Add(new Categoria { Id = 1, Nombre = "Computadoras", Descripcion = "Equipos" });
+            await db.SaveChangesAsync();
+        }
+    }
+
+    private static async Task LoginAsync(HttpClient client, string email, string password)
+    {
+        var login = await GetFormAsync(client, "/Account/Login");
+        using var response = await client.PostAsync("/Account/Login", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["__RequestVerificationToken"] = login.Token,
+            ["Email"] = email,
+            ["Password"] = password
+        }));
+        Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Vendedor_CreaYEditaProducto_YApareceEnElCatalogo()
+    {
+        using var factory = new TechStoreFactory();
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        using (var scope = factory.Services.CreateScope())
+        {
+            await EnsureCategoriaAsync(scope.ServiceProvider);
+            var manager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var vendor = new ApplicationUser { UserName = "vendedor2@test.techstore.local", Email = "vendedor2@test.techstore.local", EmailConfirmed = true, NombreCompleto = "Vendedor Productos" };
+            Assert.True((await manager.CreateAsync(vendor, "Vendedor123!")).Succeeded);
+            Assert.True((await manager.AddToRoleAsync(vendor, "Vendedor")).Succeeded);
+        }
+        await LoginAsync(client, "vendedor2@test.techstore.local", "Vendedor123!");
+
+        var create = await GetFormAsync(client, "/Productos/Create");
+        using var createResponse = await client.PostAsync("/Productos/Create", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["__RequestVerificationToken"] = create.Token,
+            ["Nombre"] = "Laptop E2E",
+            ["Descripcion"] = "Producto creado en la prueba E2E",
+            ["Precio"] = "250",
+            ["Stock"] = "5",
+            ["Imagen"] = "/images/laptop1.png",
+            ["Estado"] = "true",
+            ["CategoriaId"] = "1"
+        }));
+        Assert.Equal(HttpStatusCode.Redirect, createResponse.StatusCode);
+        Assert.Contains("Laptop E2E", await client.GetStringAsync("/Productos"));
+
+        int id;
+        using (var scope = factory.Services.CreateScope())
+            id = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>().Productos.Single(p => p.Nombre == "Laptop E2E").Id;
+
+        var edit = await GetFormAsync(client, $"/Productos/Edit/{id}");
+        using var editResponse = await client.PostAsync($"/Productos/Edit/{id}", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["__RequestVerificationToken"] = edit.Token,
+            ["Id"] = id.ToString(),
+            ["Nombre"] = "Laptop E2E Editada",
+            ["Descripcion"] = "Producto editado en la prueba E2E",
+            ["Precio"] = "300",
+            ["Stock"] = "4",
+            ["Imagen"] = "/images/laptop1.png",
+            ["Estado"] = "true",
+            ["CategoriaId"] = "1"
+        }));
+        Assert.Equal(HttpStatusCode.Redirect, editResponse.StatusCode);
+        Assert.Contains("Laptop E2E Editada", await client.GetStringAsync("/Productos"));
+        Assert.Contains("Laptop E2E Editada", await client.GetStringAsync("/Home/Productos"));
+    }
+
+    [Fact]
+    public async Task Administrador_EliminaProducto_YDesapareceDelListado()
+    {
+        using var factory = new TechStoreFactory();
+        using var client = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false });
+        int id;
+        using (var scope = factory.Services.CreateScope())
+        {
+            await EnsureCategoriaAsync(scope.ServiceProvider);
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var producto = new Producto { Nombre = "Producto Eliminable E2E", Descripcion = "Se elimina en la prueba", Precio = 10m, Stock = 1, Estado = true, Imagen = "/images/laptop1.png", CategoriaId = 1 };
+            db.Productos.Add(producto);
+            await db.SaveChangesAsync();
+            id = producto.Id;
+        }
+        await LoginAsync(client, AdminEmail, AdminPassword);
+        var listado = await client.GetStringAsync("/Productos");
+        Assert.Contains("Producto Eliminable E2E", listado);
+        Assert.Contains("/Productos/Delete/" + id, listado);
+
+        var delete = await GetFormAsync(client, $"/Productos/Delete/{id}");
+        using var deleteResponse = await client.PostAsync($"/Productos/Delete/{id}", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["__RequestVerificationToken"] = delete.Token,
+            ["Id"] = id.ToString()
+        }));
+        Assert.Equal(HttpStatusCode.Redirect, deleteResponse.StatusCode);
+        Assert.DoesNotContain("Producto Eliminable E2E", await client.GetStringAsync("/Productos"));
+    }
+
     private static async Task<(string Html, string Token)> GetFormAsync(HttpClient client, string path)
     {
         var html = await client.GetStringAsync(path);

@@ -6,8 +6,25 @@ Aplicación ASP.NET Core MVC para catálogo de productos, roles y reportes.
 
 1. Instala SQL Server LocalDB o actualiza `ConnectionStrings:DefaultConnection` en `appsettings.json`.
 2. Desde `TechStore/`, ejecuta `dotnet restore` y `dotnet run`.
-3. La aplicación aplica migraciones, crea los roles Administrador, Vendedor y Cliente, e intenta registrar el administrador inicial solo en Development. Configura `AdminSeed__Email` y `AdminSeed__Password` como variables de entorno para establecer credenciales propias. En desarrollo se incluye `admin@techstore.local` / `TechStoreAdmin123!` para facilitar la evaluación.
+3. Al iniciar, la aplicación aplica las migraciones pendientes (solo con SQL Server), crea los roles Administrador, Vendedor y Cliente y registra el administrador inicial cuando `AdminSeed:Email` y `AdminSeed:Password` están configurados (en `appsettings.Development.json` por defecto). Configura `AdminSeed__Email` y `AdminSeed__Password` como variables de entorno para establecer credenciales propias. En desarrollo se incluye `admin@techstore.local` / `TechStoreAdmin123!` para facilitar la evaluación.
 4. Los registros públicos crean únicamente usuarios con rol Cliente. El administrador cambia roles desde **Usuarios**.
+
+### SQL Server en Docker (sin LocalDB)
+
+Si no tienes LocalDB, levanta SQL Server en Docker y guarda la cadena de conexión en los secretos de usuario (así la contraseña no queda en el repositorio):
+
+1. En Visual Studio: clic derecho sobre el proyecto `TechStore` → **Administrar secretos de usuario**.
+2. Pega en `secrets.json`:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost,1433;Database=TechStoreDb;User Id=sa;Password=TU_CONTRASEÑA;TrustServerCertificate=True;MultipleActiveResultSets=true"
+  }
+}
+```
+
+3. Ejecuta la aplicación: aplica las migraciones y crea los roles y el administrador de desarrollo.
 
 ## Permisos
 
@@ -25,7 +42,7 @@ Los registros de ASP.NET Core aparecen en la consola y en `TechStore/logs/techst
 
 ## Pruebas
 
-Desde la raíz ejecuta `dotnet test TechStore.Tests/TechStore.Tests.csproj`. Las 13 pruebas unitarias, de integración y E2E cubren consultas por lista e ID, alta, edición y eliminación; el flujo HTTP de registro/login, menús y rutas por rol; asignación de roles; y descarga de los dos reportes. Las pruebas usan xUnit, Moq, EF Core InMemory y el host HTTP de ASP.NET Core.
+Desde la raíz ejecuta `dotnet test TechStore.Tests/TechStore.Tests.csproj`. Las 15 pruebas unitarias, de integración y E2E cubren consultas por lista e ID, alta, edición y eliminación; el flujo HTTP de registro/login, menús y rutas por rol; asignación de roles; y descarga de los dos reportes. Las pruebas usan xUnit, Moq, EF Core InMemory y el host HTTP de ASP.NET Core.
 
 ## Recorrido E2E y capturas para la entrega
 
