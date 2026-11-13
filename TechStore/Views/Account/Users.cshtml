@@ -1,0 +1,6 @@
+@model IEnumerable<TechStore.Models.UserRoleViewModel>
+@{ ViewData["Title"] = "Usuarios y roles"; }
+<section class="container section-space"><h1>Usuarios y roles</h1><p>Asigna a cada cuenta un único rol de acceso.</p>
+<table class="table table-striped align-middle"><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Actualizar rol</th></tr></thead><tbody>
+@foreach (var user in Model) { <tr><td>@user.NombreCompleto</td><td>@user.Email</td><td>@user.Rol</td><td><form asp-action="ChangeRole" method="post" class="d-flex gap-2"><input type="hidden" name="UserId" value="@user.Id" /><select name="Role" class="form-select" aria-label="Rol de @user.Email">@foreach (var role in new[] { "Cliente", "Vendedor", "Administrador" }) { <option value="@role" selected="@(user.Rol == role)">@role</option> }</select><button class="btn btn-outline-primary btn-sm">Guardar</button></form></td></tr> }
+</tbody></table></section>

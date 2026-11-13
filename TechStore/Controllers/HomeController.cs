@@ -1,29 +1,30 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TechStore.Models;
 using TechStore.Services;
 
-namespace TechStore.Controllers
+namespace TechStore.Controllers;
+
+[Authorize]
+public class HomeController : Controller
 {
-    public class HomeController : Controller
+    private readonly IProductoService _productoService;
+    private readonly ICategoriaService _categoriaService;
+    private readonly ILogger<HomeController> _logger;
+
+    public HomeController(IProductoService productoService, ICategoriaService categoriaService, ILogger<HomeController> logger)
+    { _productoService = productoService; _categoriaService = categoriaService; _logger = logger; }
+
+    public async Task<IActionResult> Index()
     {
-        private readonly IProductoService _productoService;
-        private readonly ICategoriaService _categoriaService;
+        try { return View((await _productoService.ObtenerTodosAsync()).Where(p => p.Estado && p.Stock > 0).Take(3).ToList()); }
+        catch (Exception ex) { _logger.LogError(ex, "Error al cargar la página inicial"); throw; }
+    }
 
-        public HomeController(IProductoService productoService, ICategoriaService categoriaService)
-        {
-            _productoService = productoService;
-            _categoriaService = categoriaService;
-        }
-
-        public async Task<IActionResult> Index()
-        {
-            var productos = await _productoService.ObtenerTodosAsync();
-            return View(productos.Take(3).ToList());
-        }
-
-        // Filtro pa las categorias
-        public async Task<IActionResult> Productos(int? categoriaId)
+    public async Task<IActionResult> Productos(int? categoriaId)
+    {
+        try
         {
             List<Producto> productos;
             if (categoriaId.HasValue)
@@ -32,33 +33,23 @@ namespace TechStore.Controllers
                 var categoria = await _categoriaService.ObtenerPorIdAsync(categoriaId.Value);
                 ViewData["CategoriaActual"] = categoria?.Nombre;
             }
-            else
-            {
-                productos = await _productoService.ObtenerTodosAsync();
-                ViewData["CategoriaActual"] = null;
-            }
-
-            return View(productos);
+            else { productos = await _productoService.ObtenerTodosAsync(); ViewData["CategoriaActual"] = null; }
+            return View(productos.Where(p => p.Estado && p.Stock > 0).ToList());
         }
-
-        public async Task<IActionResult> Categorias()
-        {
-            var categorias = await _categoriaService.ObtenerTodasAsync();
-            return View(categorias);
-        }
-
-        public IActionResult Contactenos() => View();
-        public IActionResult AcercaDe() => View();
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        catch (Exception ex) { _logger.LogError(ex, "Error al consultar productos"); throw; }
     }
+
+    public async Task<IActionResult> Categorias()
+    {
+        try { return View(await _categoriaService.ObtenerTodasAsync()); }
+        catch (Exception ex) { _logger.LogError(ex, "Error al consultar categorías"); throw; }
+    }
+
+    public IActionResult Contactenos() => View();
+    public IActionResult AcercaDe() => View();
+    [AllowAnonymous] public IActionResult AccessDenied() => View();
+
+    [AllowAnonymous]
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error() => View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
 }

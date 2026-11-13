@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
@@ -25,9 +25,26 @@
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Inicio</a></li>
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Productos">Productos</a></li>
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Categorias">Categorías</a></li>
-                        <li class="nav-item"><a class="nav-link" asp-controller="Productos" asp-action="Index">Administrar</a></li>
+                        @if (User.IsInRole("Administrador") || User.IsInRole("Vendedor"))
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Productos" asp-action="Index">Administrar</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="Reports" asp-action="Index">Reportes</a></li>
+                        }
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Users">Usuarios</a></li>
+                        }
                         <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="AcercaDe">Nosotros</a></li>
-                        <li class="nav-item"><a class="btn btn-light btn-sm px-3 ms-lg-2" asp-controller="Home" asp-action="Contactenos">Contáctenos</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Contactenos">Contáctenos</a></li>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item"><span class="nav-link">@User.Identity.Name</span></li>
+                            <li class="nav-item"><form asp-controller="Account" asp-action="Logout" method="post"><button class="btn btn-light btn-sm px-3">Salir</button></form></li>
+                        }
+                        else
+                        {
+                            <li class="nav-item"><a class="btn btn-light btn-sm px-3 ms-lg-2" asp-controller="Account" asp-action="Login">Iniciar sesión</a></li>
+                        }
                     </ul>
                 </div>
             </div>

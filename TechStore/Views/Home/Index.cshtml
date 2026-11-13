@@ -19,6 +19,7 @@
 </section>
 
 <section class="container section-space">
+    @await Component.InvokeAsync("CatalogSummary")
     <div class="section-heading">
         <h2>Productos destacados</h2>
         <a asp-action="Productos" class="link-primary">Ver todos</a>
